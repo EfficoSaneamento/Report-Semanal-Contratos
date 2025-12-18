@@ -1,33 +1,31 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbybeMFf5PE9G2LrWshRpT_i0rvtEus7H6nrvR1KnjbJtzV9_Fn491ZjumwZz0XtYSyKgQ/exec';
+const API_URL = "https://script.google.com/macros/s/AKfycbybeMFf5PE9G2LrWshRpT_i0rvtEus7H6nrvR1KnjbJtzV9_Fn491ZjumwZz0XtYSyKgQ/exec";
 
 // ===============================
-// Lê token da URL
+// Token
 // ===============================
 const params = new URLSearchParams(window.location.search);
-const token = params.get('token');
+const token = params.get("token");
+const erro = document.getElementById("erro");
 
 if (!token) {
-  document.getElementById('erro').innerText = 'Token não informado na URL';
-  throw new Error('Token ausente');
+  erro.innerText = "Token não informado na URL";
+  throw new Error("Token ausente");
 }
 
 // ===============================
-// Valida gerente e carrega contratos
+// Valida gerente
 // ===============================
-fetch(`${API_URL}?action=validar&token=${token}`)
+fetch(`${API_URL}?action=validar&token=${encodeURIComponent(token)}`)
   .then(res => res.json())
   .then(data => {
-    console.log('Resposta da API:', data);
-
     if (!data.success) {
-      document.getElementById('erro').innerText = data.message || 'Erro ao validar token';
+      erro.innerText = data.message || "Erro ao validar token";
       return;
     }
-
     renderContratos(data.contratos);
   })
   .catch(err => {
-    document.getElementById('erro').innerText = 'Erro ao conectar com a API';
+    erro.innerText = "Erro ao conectar com a API";
     console.error(err);
   });
 
@@ -35,89 +33,85 @@ fetch(`${API_URL}?action=validar&token=${token}`)
 // Renderiza contratos
 // ===============================
 function renderContratos(contratos) {
-  const container = document.getElementById('formulario');
-  container.innerHTML = '';
+  const container = document.getElementById("formulario");
+  container.innerHTML = "";
 
   if (!contratos || contratos.length === 0) {
-    container.innerHTML = '<p>Nenhum contrato encontrado.</p>';
+    container.innerHTML = "<p>Nenhum contrato encontrado.</p>";
     return;
   }
 
   contratos.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'contrato';
+    const div = document.createElement("div");
+    div.className = "contrato";
 
-  div.innerHTML = `
-    <div class="contrato-header" data-id="${c.id}">
-      ${c.nome}
-    </div>
+    div.innerHTML = `
+      <div class="contrato-header" data-id="${c.id}">
+        ${c.nome}
+      </div>
 
-    <div class="contrato-body">
+      <div class="contrato-body" style="display:none">
 
-      <div class="bloco">
-        <h4 class="bloco-titulo">💰 Faturamento</h4>
-        <div class="grid-2">
-          <div class="campo">
-            <label>Previsto (Mês)</label>
-            <input type="number" data-field="faturamentoPrevistoMes">
-          </div>
-          <div class="campo">
-            <label>Próx. Semana</label>
-            <input type="number" data-field="faturamentoProximaSemana">
+        <div class="bloco">
+          <h4 class="bloco-titulo">💰 Faturamento</h4>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input data-field="faturamentoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="faturamentoProximaSemana">
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bloco">
-        <h4 class="bloco-titulo">💸 Custos</h4>
-        <div class="grid-2">
-          <div class="campo">
-            <label>Previsto (Mês)</label>
-            <input type="number" data-field="custoPrevistoMes">
-          </div>
-          <div class="campo">
-            <label>Próx. Semana</label>
-            <input type="number" data-field="custoProximaSemana">
-          </div>
-        </div>
-      </div>
-
-      <div class="bloco">
-        <h4 class="bloco-titulo">👷 Produção</h4>
-        <div class="grid-3">
-          <div class="campo">
-            <label>Realizada (Mês)</label>
-            <input data-field="producaoRealizadaMes">
-          </div>
-          <div class="campo">
-            <label>Prevista (Mês)</label>
-            <input data-field="producaoPrevistaMes">
-          </div>
-          <div class="campo">
-            <label>Próx. Semana</label>
-            <input data-field="producaoProximaSemana">
+        <div class="bloco">
+          <h4 class="bloco-titulo">💸 Custos</h4>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input data-field="custoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="custoProximaSemana">
+            </div>
           </div>
         </div>
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">👷 Produção</h4>
+          <div class="grid-3">
+            <div class="campo">
+              <label>Realizada (Mês)</label>
+              <input data-field="producaoRealizadaMes">
+            </div>
+            <div class="campo">
+              <label>Prevista (Mês)</label>
+              <input data-field="producaoPrevistaMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="producaoProximaSemana">
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">🧠 Análise</h4>
+          <label>Destaques da Semana</label>
+          <textarea data-field="destaquesdaSemana"></textarea>
+          <label>Concentrações da Semana</label>
+          <textarea data-field="concentracaodaSemana"></textarea>
+        </div>
+
       </div>
+    `;
 
-      <div class="bloco">
-        <h4 class="bloco-titulo">🧠 Análise</h4>
-
-        <label>Destaques da Semana</label>
-        <textarea data-field="destaquesdaSemana"></textarea>
-
-        <label>Concentrações da Semana</label>
-        <textarea data-field="concentracaodaSemana"></textarea>
-      </div>
-
-    </div>
-`;
-
-
-    // Abre / fecha contrato
-    div.querySelector('.contrato-header').onclick = () => {
-      const body = div.querySelector('.contrato-body');
-      body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    div.querySelector(".contrato-header").onclick = () => {
+      const body = div.querySelector(".contrato-body");
+      body.style.display = body.style.display === "none" ? "block" : "none";
     };
 
     container.appendChild(div);
@@ -125,44 +119,51 @@ function renderContratos(contratos) {
 }
 
 // ===============================
-// Envio dos dados
+// Enviar relatório
 // ===============================
-document.getElementById('btnEnviar').onclick = () => {
+document.getElementById("btnEnviar").onclick = () => {
+  erro.innerText = "";
   const contratos = [];
 
-  document.querySelectorAll('.contrato').forEach(div => {
-    const header = div.querySelector('.contrato-header');
+  document.querySelectorAll(".contrato").forEach(div => {
+    const header = div.querySelector(".contrato-header");
 
     const dados = {
-      idContrato: header.dataset.id,
-      nomeContrato: header.innerText
+      nomeContrato: header.textContent.trim()
     };
 
-    div.querySelectorAll('[data-field]').forEach(el => {
-      dados[el.dataset.field] = el.value || '';
+    let temConteudo = false;
+
+    div.querySelectorAll("[data-field]").forEach(el => {
+      if (el.value.trim() !== "") temConteudo = true;
+      dados[el.dataset.field] = el.value.trim();
     });
 
-    contratos.push(dados);
+    if (temConteudo) {
+      contratos.push(dados);
+    }
   });
 
-  console.log('Dados enviados:', contratos);
+  if (contratos.length === 0) {
+    erro.innerText = "Preencha pelo menos um contrato.";
+    return;
+  }
 
   fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, contratos })
   })
-    .then(res => res.json())
-    .then(r => {
-      console.log('Resposta do POST:', r);
-      if (r.success) {
-        alert('Dados enviados com sucesso!');
-      } else {
-        alert(r.message || 'Erro ao enviar dados');
-      }
+    .then(res => res.text())
+    .then(text => {
+      const r = JSON.parse(text);
+      if (!r.success) throw new Error(r.message);
+      alert("Relatório enviado com sucesso!");
+      location.reload();
     })
     .catch(err => {
-      alert('Erro ao enviar dados');
       console.error(err);
+      erro.innerText = "Erro ao enviar dados: " + err.message;
     });
 };
+
