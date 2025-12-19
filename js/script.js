@@ -1,113 +1,107 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbz8Yq49synXDR0Gfj0j4t9UWi5Jqu94Ya7-F-6aF7-l9dy7e8rteRGCRPopLhb9amuu/exec';
-let TOKEN_GLOBAL = '';
+let TOKEN = '';
 
 /* =========================
-   LER TOKEN DA URL
+   TOKEN DA URL
 ========================= */
 const params = new URLSearchParams(window.location.search);
-const tokenUrl = params.get('token');
+TOKEN = params.get('token');
 
-if (tokenUrl) {
-  TOKEN_GLOBAL = tokenUrl;
-  validarToken(tokenUrl);
+if (!TOKEN) {
+  alert('Token não informado');
+  throw new Error('Token ausente');
 }
 
 /* =========================
    VALIDAR TOKEN
 ========================= */
-function validarToken(token) {
-  fetch(`${API_URL}?action=validar&token=${token}`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) {
-        document.getElementById('erro').innerText = data.message;
-        return;
-      }
-
-      TOKEN_GLOBAL = token;
-      document.getElementById('nomeGerente').innerText = data.gerente;
-      renderContratos(data.contratos);
-    })
-    .catch(() => {
-      document.getElementById('erro').innerText = 'Erro ao validar token';
-    });
-}
+fetch(`${API_URL}?action=validar&token=${TOKEN}`)
+  .then(r => r.json())
+  .then(d => {
+    if (!d.success) {
+      alert(d.message);
+      return;
+    }
+    document.getElementById('nomeGerente').innerText = d.gerente;
+    renderContratos(d.contratos);
+  });
 
 /* =========================
-   RENDERIZA CONTRATOS
+   FORMULÁRIO
 ========================= */
 function renderContratos(contratos) {
-  const container = document.getElementById('formulario');
-  container.innerHTML = '';
+  const f = document.getElementById('formulario');
+  f.innerHTML = '';
 
   contratos.forEach(c => {
     const div = document.createElement('div');
     div.className = 'contrato';
 
     div.innerHTML = `
-      <div class="contrato-header">${c.nome}</div>
-      <div class="contrato-body">
+      <h3>${c.nome}</h3>
 
+      <div class="bloco">
         <h4>💰 Faturamento</h4>
-        <input data-field="faturamentoPrevistoMes" placeholder="Previsto Mês">
-        <input data-field="faturamentoProximaSemana" placeholder="Próx. Semana">
+        <input data="faturamentoPrevistoMes" placeholder="Previsto (Mês)">
+        <input data="faturamentoProximaSemana" placeholder="Próx. Semana">
+      </div>
 
+      <div class="bloco">
         <h4>💸 Custos</h4>
-        <input data-field="custoPrevistoMes" placeholder="Previsto Mês">
-        <input data-field="custoProximaSemana" placeholder="Próx. Semana">
+        <input data="custoPrevistoMes" placeholder="Previsto (Mês)">
+        <input data="custoProximaSemana" placeholder="Próx. Semana">
+      </div>
 
+      <div class="bloco">
         <h4>👷 Produção</h4>
-        <input data-field="producaoRealizadaMes" placeholder="Realizada Mês">
-        <input data-field="producaoPrevistaMes" placeholder="Prevista Mês">
-        <input data-field="producaoProximaSemana" placeholder="Próx. Semana">
+        <input data="producaoRealizadaMes" placeholder="Realizada (Mês)">
+        <input data="producaoPrevistaMes" placeholder="Prevista (Mês)">
+        <input data="producaoProximaSemana" placeholder="Próx. Semana">
+      </div>
 
+      <div class="bloco">
         <h4>📝 Análise</h4>
-        <textarea data-field="destaquesdaSemana" placeholder="Destaques"></textarea>
-        <textarea data-field="concentracaodaSemana" placeholder="Concentrações"></textarea>
-
+        <textarea data="destaquesdaSemana" placeholder="Destaques"></textarea>
+        <textarea data="concentracaodaSemana" placeholder="Concentrações"></textarea>
       </div>
     `;
 
-    container.appendChild(div);
+    f.appendChild(div);
   });
 }
 
 /* =========================
-   ENVIAR FORMULÁRIO
+   ENVIAR
 ========================= */
 document.getElementById('btnEnviar').onclick = () => {
-  if (!TOKEN_GLOBAL) {
-    alert('Token não validado');
-    return;
-  }
-
   const contratos = [];
 
-  document.querySelectorAll('.contrato').forEach(div => {
-    const nomeContrato = div.querySelector('.contrato-header').innerText;
-    const dados = { nomeContrato };
+  document.querySelectorAll('.contrato').forEach(c => {
+    const obj = {
+      nomeContrato: c.querySelector('h3').innerText
+    };
 
-    div.querySelectorAll('[data-field]').forEach(el => {
-      dados[el.dataset.field] = el.value || '';
+    c.querySelectorAll('[data]').forEach(i => {
+      obj[i.getAttribute('data')] = i.value || '';
     });
 
-    contratos.push(dados);
+    contratos.push(obj);
   });
 
   fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({
-      token: TOKEN_GLOBAL,
+      token: TOKEN,
       contratos
     })
   })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(r => {
       if (!r.success) {
         alert(r.message);
         return;
       }
-      alert('Dados enviados com sucesso!');
+      alert('Relatório enviado com sucesso!');
     })
     .catch(() => {
       alert('Erro ao enviar dados');
@@ -118,18 +112,14 @@ document.getElementById('btnEnviar').onclick = () => {
    HISTÓRICO
 ========================= */
 document.getElementById('btnBuscarHistorico').onclick = () => {
-  const dataInput = document.getElementById('dataHistorico').value;
+  const data = document.getElementById('dataHistorico').value;
+  if (!data) return alert('Selecione a data');
 
-  if (!dataInput) {
-    alert('Selecione a data');
-    return;
-  }
+  const [a, m, d] = data.split('-');
+  const dataBR = `${d}/${m}/${a}`;
 
-  const [ano, mes, dia] = dataInput.split('-');
-  const dataFormatada = `${dia}/${mes}/${ano}`;
-
-  fetch(`${API_URL}?action=historico&token=${TOKEN_GLOBAL}&data=${dataFormatada}`)
-    .then(res => res.json())
+  fetch(`${API_URL}?action=historico&token=${TOKEN}&data=${dataBR}`)
+    .then(r => r.json())
     .then(r => {
       const h = document.getElementById('historico');
       h.innerHTML = '';
@@ -141,29 +131,39 @@ document.getElementById('btnBuscarHistorico').onclick = () => {
 
       r.dados.forEach(d => {
         h.innerHTML += `
-          <div class="historico-item">
-            <h4>${d.contrato}</h4>
+          <div class="historico-card">
+            <h3>${d.contrato}</h3>
 
-            <p><b>Faturamento Mês:</b> ${d.faturamentoMes}</p>
-            <p><b>Faturamento Semana:</b> ${d.faturamentoSemana}</p>
+            <div class="hist-bloco">
+              <h4>💰 Faturamento</h4>
+              <p>Previsto Mês: ${d.faturamentoMes}</p>
+              <p>Próx. Semana: ${d.faturamentoSemana}</p>
+            </div>
 
-            <p><b>Custo Mês:</b> ${d.custoMes}</p>
-            <p><b>Custo Semana:</b> ${d.custoSemana}</p>
+            <div class="hist-bloco">
+              <h4>💸 Custos</h4>
+              <p>Previsto Mês: ${d.custoMes}</p>
+              <p>Próx. Semana: ${d.custoSemana}</p>
+            </div>
 
-            <p><b>Produção Realizada:</b> ${d.prodRealizada}</p>
-            <p><b>Produção Prevista:</b> ${d.prodPrevista}</p>
-            <p><b>Produção Semana:</b> ${d.prodSemana}</p>
+            <div class="hist-bloco">
+              <h4>👷 Produção</h4>
+              <p>Realizada: ${d.prodRealizada}</p>
+              <p>Prevista: ${d.prodPrevista}</p>
+              <p>Próx. Semana: ${d.prodSemana}</p>
+            </div>
 
-            <p><b>Destaques:</b> ${d.destaques || '-'}</p>
-            <p><b>Concentrações:</b> ${d.concentracoes || '-'}</p>
+            <div class="hist-bloco">
+              <h4>📝 Análise</h4>
+              <p>Destaques: ${d.destaques || '-'}</p>
+              <p>Concentrações: ${d.concentracoes || '-'}</p>
+            </div>
           </div>
         `;
       });
-    })
-    .catch(() => {
-      alert('Erro ao buscar histórico');
     });
 };
+
 
 
 
