@@ -1,101 +1,143 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbz8Yq49synXDR0Gfj0j4t9UWi5Jqu94Ya7-F-6aF7-l9dy7e8rteRGCRPopLhb9amuu/exec';
-let TOKEN = '';
 
-/* =========================
-   TOKEN DA URL
-========================= */
+// ===============================
+// TOKEN
+// ===============================
 const params = new URLSearchParams(window.location.search);
-TOKEN = params.get('token');
+const token = params.get('token');
 
-if (!TOKEN) {
-  alert('Token não informado');
+if (!token) {
+  document.getElementById('erro').innerText = 'Token não informado na URL';
   throw new Error('Token ausente');
 }
 
-/* =========================
-   VALIDAR TOKEN
-========================= */
-fetch(`${API_URL}?action=validar&token=${TOKEN}`)
-  .then(r => r.json())
-  .then(d => {
-    if (!d.success) {
-      alert(d.message);
+// ===============================
+// VALIDAR GERENTE
+// ===============================
+fetch(`${API_URL}?action=validar&token=${token}`)
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      document.getElementById('erro').innerText = data.message;
       return;
     }
-    document.getElementById('nomeGerente').innerText = d.gerente;
-    renderContratos(d.contratos);
+    document.getElementById('nomeGerente').innerText = data.gerente;
+    renderContratos(data.contratos);
+  })
+  .catch(() => {
+    document.getElementById('erro').innerText = 'Erro ao conectar com a API';
   });
 
-/* =========================
-   FORMULÁRIO
-========================= */
+// ===============================
+// RENDER FORMULÁRIO
+// ===============================
 function renderContratos(contratos) {
-  const f = document.getElementById('formulario');
-  f.innerHTML = '';
+  const container = document.getElementById('formulario');
+  container.innerHTML = '';
 
   contratos.forEach(c => {
     const div = document.createElement('div');
     div.className = 'contrato';
 
     div.innerHTML = `
-      <h3>${c.nome}</h3>
+      <div class="contrato-header">${c.nome}</div>
 
-      <div class="bloco">
-        <h4>💰 Faturamento</h4>
-        <input data="faturamentoPrevistoMes" placeholder="Previsto (Mês)">
-        <input data="faturamentoProximaSemana" placeholder="Próx. Semana">
-      </div>
+      <div class="contrato-body">
 
-      <div class="bloco">
-        <h4>💸 Custos</h4>
-        <input data="custoPrevistoMes" placeholder="Previsto (Mês)">
-        <input data="custoProximaSemana" placeholder="Próx. Semana">
-      </div>
+        <div class="bloco">
+          <div class="bloco-titulo">💰 Faturamento</div>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input data-field="faturamentoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="faturamentoProximaSemana">
+            </div>
+          </div>
+        </div>
 
-      <div class="bloco">
-        <h4>👷 Produção</h4>
-        <input data="producaoRealizadaMes" placeholder="Realizada (Mês)">
-        <input data="producaoPrevistaMes" placeholder="Prevista (Mês)">
-        <input data="producaoProximaSemana" placeholder="Próx. Semana">
-      </div>
+        <div class="bloco">
+          <div class="bloco-titulo">💸 Custos</div>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input data-field="custoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="custoProximaSemana">
+            </div>
+          </div>
+        </div>
 
-      <div class="bloco">
-        <h4>📝 Análise</h4>
-        <textarea data="destaquesdaSemana" placeholder="Destaques"></textarea>
-        <textarea data="concentracaodaSemana" placeholder="Concentrações"></textarea>
+        <div class="bloco">
+          <div class="bloco-titulo">👷 Produção</div>
+          <div class="grid-3">
+            <div class="campo">
+              <label>Realizada (Mês)</label>
+              <input data-field="producaoRealizadaMes">
+            </div>
+            <div class="campo">
+              <label>Prevista (Mês)</label>
+              <input data-field="producaoPrevistaMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="producaoProximaSemana">
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <div class="bloco-titulo">🧠 Análise</div>
+          <div class="campo">
+            <label>Destaques da Semana</label>
+            <textarea data-field="destaquesdaSemana"></textarea>
+          </div>
+          <div class="campo">
+            <label>Concentrações da Semana</label>
+            <textarea data-field="concentracaodaSemana"></textarea>
+          </div>
+        </div>
+
       </div>
     `;
 
-    f.appendChild(div);
+    // abre/fecha
+    div.querySelector('.contrato-header').onclick = () => {
+      const body = div.querySelector('.contrato-body');
+      body.style.display = body.style.display === 'none' ? 'grid' : 'none';
+    };
+
+    container.appendChild(div);
   });
 }
 
-/* =========================
-   ENVIAR
-========================= */
+// ===============================
+// ENVIAR
+// ===============================
 document.getElementById('btnEnviar').onclick = () => {
   const contratos = [];
 
-  document.querySelectorAll('.contrato').forEach(c => {
-    const obj = {
-      nomeContrato: c.querySelector('h3').innerText
+  document.querySelectorAll('.contrato').forEach(div => {
+    const dados = {
+      nomeContrato: div.querySelector('.contrato-header').innerText
     };
 
-    c.querySelectorAll('[data]').forEach(i => {
-      obj[i.getAttribute('data')] = i.value || '';
+    div.querySelectorAll('[data-field]').forEach(el => {
+      dados[el.dataset.field] = el.value || '';
     });
 
-    contratos.push(obj);
+    contratos.push(dados);
   });
 
   fetch(API_URL, {
     method: 'POST',
-    body: JSON.stringify({
-      token: TOKEN,
-      contratos
-    })
+    body: JSON.stringify({ token, contratos })
   })
-    .then(r => r.json())
+    .then(res => res.json())
     .then(r => {
       if (!r.success) {
         alert(r.message);
@@ -103,66 +145,9 @@ document.getElementById('btnEnviar').onclick = () => {
       }
       alert('Relatório enviado com sucesso!');
     })
-    .catch(() => {
-      alert('Erro ao enviar dados');
-    });
+    .catch(() => alert('Erro ao enviar dados'));
 };
 
-/* =========================
-   HISTÓRICO
-========================= */
-document.getElementById('btnBuscarHistorico').onclick = () => {
-  const data = document.getElementById('dataHistorico').value;
-  if (!data) return alert('Selecione a data');
-
-  const [a, m, d] = data.split('-');
-  const dataBR = `${d}/${m}/${a}`;
-
-  fetch(`${API_URL}?action=historico&token=${TOKEN}&data=${dataBR}`)
-    .then(r => r.json())
-    .then(r => {
-      const h = document.getElementById('historico');
-      h.innerHTML = '';
-
-      if (!r.success || r.dados.length === 0) {
-        h.innerHTML = '<p>Nenhum registro encontrado</p>';
-        return;
-      }
-
-      r.dados.forEach(d => {
-        h.innerHTML += `
-          <div class="historico-card">
-            <h3>${d.contrato}</h3>
-
-            <div class="hist-bloco">
-              <h4>💰 Faturamento</h4>
-              <p>Previsto Mês: ${d.faturamentoMes}</p>
-              <p>Próx. Semana: ${d.faturamentoSemana}</p>
-            </div>
-
-            <div class="hist-bloco">
-              <h4>💸 Custos</h4>
-              <p>Previsto Mês: ${d.custoMes}</p>
-              <p>Próx. Semana: ${d.custoSemana}</p>
-            </div>
-
-            <div class="hist-bloco">
-              <h4>👷 Produção</h4>
-              <p>Realizada: ${d.prodRealizada}</p>
-              <p>Prevista: ${d.prodPrevista}</p>
-              <p>Próx. Semana: ${d.prodSemana}</p>
-            </div>
-
-            <div class="hist-bloco">
-              <h4>📝 Análise</h4>
-              <p>Destaques: ${d.destaques || '-'}</p>
-              <p>Concentrações: ${d.concentracoes || '-'}</p>
-            </div>
-          </div>
-        `;
-      });
-    });
-};
 
 
 
