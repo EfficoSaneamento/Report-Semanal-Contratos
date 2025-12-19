@@ -1,202 +1,205 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbz8Yq49synXDR0Gfj0j4t9UWi5Jqu94Ya7-F-6aF7-l9dy7e8rteRGCRPopLhb9amuu/exec'; // 🔴 cole a URL do Web App
-let TOKEN = '';
+const API_URL = 'https://script.google.com/macros/s/AKfycbz8Yq49synXDR0Gfj0j4t9UWi5Jqu94Ya7-F-6aF7-l9dy7e8rteRGCRPopLhb9amuu/exec';
 
-/* =========================
-   INICIALIZAÇÃO
-========================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const btnEnviar = document.getElementById('btnEnviar');
-  const btnBuscarHistorico = document.getElementById('btnBuscarHistorico');
+/* ===============================
+   TOKEN
+=============================== */
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
 
-  if (btnEnviar) btnEnviar.addEventListener('click', enviarFormulario);
-  if (btnBuscarHistorico) btnBuscarHistorico.addEventListener('click', carregarHistorico);
-});
+const erroEl = document.getElementById('erro');
+const formularioEl = document.getElementById('formulario');
+const gerenteNomeEl = document.getElementById('gerenteNome');
+const historicoEl = document.getElementById('listaHistorico');
+const dataHistoricoEl = document.getElementById('dataHistorico');
 
-/* =========================
-   VALIDAR TOKEN
-========================= */
-async function validarToken() {
-  const tokenInput = document.getElementById('token');
-  const nomeGerenteEl = document.getElementById('nomeGerente');
-
-  TOKEN = tokenInput.value.trim();
-
-  if (!TOKEN) {
-    alert('Informe o token');
-    return;
-  }
-
-  const url = `${API_URL}?action=validar&token=${TOKEN}`;
-
-  const r = await fetch(url).then(res => res.json());
-
-  if (!r.success) {
-    alert(r.message);
-    return;
-  }
-
-  nomeGerenteEl.innerText = r.gerente;
-  carregarContratos(r.contratos);
+if (!token) {
+  erroEl.innerText = 'Token não informado na URL';
+  throw new Error('Token ausente');
 }
 
-/* =========================
-   CARREGAR CONTRATOS
-========================= */
-function carregarContratos(contratos) {
-  const container = document.getElementById('listaContratos');
-  container.innerHTML = '';
+/* ===============================
+   VALIDAR GERENTE / CONTRATOS
+=============================== */
+fetch(`${API_URL}?action=validar&token=${token}`)
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) {
+      erroEl.innerText = data.message;
+      return;
+    }
+
+    gerenteNomeEl.innerText = `Gerente: ${data.gerente}`;
+    renderContratos(data.contratos);
+  })
+  .catch(err => {
+    erroEl.innerText = 'Erro ao conectar com a API';
+    console.error(err);
+  });
+
+/* ===============================
+   RENDER CONTRATOS
+=============================== */
+function renderContratos(contratos) {
+  formularioEl.innerHTML = '';
+
+  if (!contratos || contratos.length === 0) {
+    formularioEl.innerHTML = '<p>Nenhum contrato encontrado.</p>';
+    return;
+  }
 
   contratos.forEach(c => {
-    container.innerHTML += `
-      <div class="contrato">
-        <div class="contrato-header">${c.nome}</div>
-        <div class="contrato-body">
+    const div = document.createElement('div');
+    div.className = 'contrato';
 
-          <div class="bloco">
-            <div class="bloco-titulo">💰 Faturamento</div>
-            <div class="grid-2">
-              <div class="campo">
-                <label>Previsto (Mês)</label>
-                <input data-field="faturamentoPrevistoMes">
-              </div>
-              <div class="campo">
-                <label>Próx. Semana</label>
-                <input data-field="faturamentoProximaSemana">
-              </div>
+    div.innerHTML = `
+      <div class="contrato-header" data-id="${c.id}">
+        ${c.nome}
+      </div>
+
+      <div class="contrato-body">
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">💰 Faturamento</h4>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input type="number" data-field="faturamentoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input type="number" data-field="faturamentoProximaSemana">
             </div>
           </div>
-
-          <div class="bloco">
-            <div class="bloco-titulo">💸 Custos</div>
-            <div class="grid-2">
-              <div class="campo">
-                <label>Previsto (Mês)</label>
-                <input data-field="custoPrevistoMes">
-              </div>
-              <div class="campo">
-                <label>Próx. Semana</label>
-                <input data-field="custoProximaSemana">
-              </div>
-            </div>
-          </div>
-
-          <div class="bloco">
-            <div class="bloco-titulo">👷 Produção</div>
-            <div class="grid-3">
-              <div class="campo">
-                <label>Realizada (Mês)</label>
-                <input data-field="producaoRealizadaMes">
-              </div>
-              <div class="campo">
-                <label>Prevista (Mês)</label>
-                <input data-field="producaoPrevistaMes">
-              </div>
-              <div class="campo">
-                <label>Próx. Semana</label>
-                <input data-field="producaoProximaSemana">
-              </div>
-            </div>
-          </div>
-
-          <div class="bloco">
-            <div class="bloco-titulo">📝 Análise</div>
-            <textarea data-field="destaquesdaSemana" placeholder="Destaques da semana"></textarea>
-            <textarea data-field="concentracaodaSemana" placeholder="Concentrações da semana"></textarea>
-          </div>
-
         </div>
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">💸 Custos</h4>
+          <div class="grid-2">
+            <div class="campo">
+              <label>Previsto (Mês)</label>
+              <input type="number" data-field="custoPrevistoMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input type="number" data-field="custoProximaSemana">
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">👷 Produção</h4>
+          <div class="grid-3">
+            <div class="campo">
+              <label>Realizada (Mês)</label>
+              <input data-field="producaoRealizadaMes">
+            </div>
+            <div class="campo">
+              <label>Prevista (Mês)</label>
+              <input data-field="producaoPrevistaMes">
+            </div>
+            <div class="campo">
+              <label>Próx. Semana</label>
+              <input data-field="producaoProximaSemana">
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h4 class="bloco-titulo">🧠 Análise</h4>
+          <label>Destaques da Semana</label>
+          <textarea data-field="destaquesdaSemana"></textarea>
+
+          <label>Concentrações da Semana</label>
+          <textarea data-field="concentracaodaSemana"></textarea>
+        </div>
+
       </div>
     `;
+
+    div.querySelector('.contrato-header').onclick = () => {
+      const body = div.querySelector('.contrato-body');
+      body.style.display = body.style.display === 'none' ? 'grid' : 'none';
+    };
+
+    formularioEl.appendChild(div);
   });
 }
 
-/* =========================
-   ENVIAR FORMULÁRIO
-========================= */
-async function enviarFormulario() {
+/* ===============================
+   ENVIO DO FORMULÁRIO
+=============================== */
+document.getElementById('btnEnviar').onclick = () => {
   const contratos = [];
 
-  document.querySelectorAll('.contrato').forEach(contratoEl => {
-    const nomeContrato = contratoEl.querySelector('.contrato-header').innerText;
-    const dados = { nomeContrato };
+  document.querySelectorAll('.contrato').forEach(div => {
+    const header = div.querySelector('.contrato-header');
 
-    contratoEl.querySelectorAll('[data-field]').forEach(campo => {
-      dados[campo.dataset.field] = campo.value;
+    const dados = {
+      nomeContrato: header.innerText.trim()
+    };
+
+    div.querySelectorAll('[data-field]').forEach(el => {
+      dados[el.dataset.field] = el.value || '';
     });
 
     contratos.push(dados);
   });
 
-  const payload = {
-    token: TOKEN,
-    contratos
-  };
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, contratos })
+  })
+    .then(r => r.json())
+    .then(r => {
+      if (r.success) {
+        alert('Relatório enviado com sucesso!');
+      } else {
+        alert(r.message || 'Erro ao enviar');
+      }
+    })
+    .catch(err => {
+      alert('Erro ao enviar dados');
+      console.error(err);
+    });
+};
 
-  try {
-    const r = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }).then(res => res.json());
-
-    if (!r.success) {
-      alert(r.message);
-      return;
-    }
-
-    alert('Dados enviados com sucesso!');
-  } catch (err) {
-    alert('Erro ao enviar dados');
-  }
-}
-
-/* =========================
-   CARREGAR HISTÓRICO
-========================= */
-async function carregarHistorico() {
-  const data = document.getElementById('dataHistorico').value;
-  const historicoEl = document.getElementById('historico');
+/* ===============================
+   HISTÓRICO
+=============================== */
+window.carregarHistorico = function () {
+  const data = dataHistoricoEl.value;
 
   if (!data) {
-    alert('Selecione uma data');
+    historicoEl.innerHTML = '<p>Selecione uma data.</p>';
     return;
   }
 
-  const [ano, mes, dia] = data.split('-');
-  const dataFormatada = `${dia}/${mes}/${ano}`;
+  // Converte yyyy-mm-dd -> dd/MM/yyyy
+  const [y, m, d] = data.split('-');
+  const dataFormatada = `${d}/${m}/${y}`;
 
-  const url = `${API_URL}?action=historico&token=${TOKEN}&data=${dataFormatada}`;
+  fetch(`${API_URL}?action=historico&token=${token}&data=${dataFormatada}`)
+    .then(r => r.json())
+    .then(r => {
+      if (!r.success || r.dados.length === 0) {
+        historicoEl.innerHTML = '<p>Nenhum registro encontrado.</p>';
+        return;
+      }
 
-  const r = await fetch(url).then(res => res.json());
-
-  if (!r.success) {
-    historicoEl.innerHTML = `<p>${r.message}</p>`;
-    return;
-  }
-
-  if (r.dados.length === 0) {
-    historicoEl.innerHTML = `<p>Nenhum registro encontrado</p>`;
-    return;
-  }
-
-  historicoEl.innerHTML = r.dados.map(item => `
-    <div class="historico-item">
-      <h4>${item.contrato}</h4>
-
-      <p><strong>💰 Faturamento Previsto (Mês):</strong> ${item.faturamentoMes}</p>
-      <p><strong>📅💰 Faturamento Próx. Semana:</strong> ${item.faturamentoSemana}</p>
-
-      <p><strong>💸 Custo Previsto (Mês):</strong> ${item.custoMes}</p>
-      <p><strong>📆💸 Custo Próx. Semana:</strong> ${item.custoSemana}</p>
-
-      <p><strong>✅👷 Produção Realizada (Mês):</strong> ${item.prodRealizada}</p>
-      <p><strong>👷 Produção Prevista (Mês):</strong> ${item.prodPrevista}</p>
-      <p><strong>📆👷 Produção Próx. Semana:</strong> ${item.prodSemana}</p>
-
-      <p><strong>🌟 Destaques da Semana:</strong><br>${item.destaques || '-'}</p>
-      <p><strong>🎯 Concentrações da Semana:</strong><br>${item.concentracoes || '-'}</p>
-    </div>
-  `).join('');
-}
-
+      historicoEl.innerHTML = r.dados.map(item => `
+        <div class="historico-item">
+          <strong>${item.contrato}</strong><br>
+          💰 ${item.faturamentoMes} | 💸 ${item.custoMes}<br>
+          👷 ${item.prodRealizada} / ${item.prodPrevista}<br>
+          ⭐ ${item.destaques || '-'}
+        </div>
+      `).join('');
+    })
+    .catch(err => {
+      historicoEl.innerHTML = '<p>Erro ao carregar histórico.</p>';
+      console.error(err);
+    });
+};
 
 
