@@ -169,16 +169,37 @@ textarea {
    HISTÓRICO
 ======================= */
 
-.historico {
-  flex: 1;
-  background: white;
+/* =========================
+   HISTÓRICO
+========================= */
+
+.historico-card {
+  background: #ffffff;
   border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-.historico h3 {
-  margin-top: 0;
+.historico-card h4 {
+  margin: 0 0 10px 0;
+  color: #0b2e4a;
+}
+
+.historico-bloco {
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.historico-bloco p {
+  margin: 4px 0;
+}
+
+.historico-bloco span {
+  font-weight: 600;
 }
 
 /* =======================

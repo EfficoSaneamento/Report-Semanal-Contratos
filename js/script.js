@@ -149,13 +149,14 @@ function carregarHistorico() {
 
   const data = dataBR(dataISO);
   const lista = document.getElementById("listaHistorico");
-  lista.innerHTML = "Carregando...";
+
+  lista.innerHTML = "<p>Carregando histórico...</p>";
 
   fetch(`${API_URL}?action=historico&token=${token}&data=${data}`)
     .then(r => r.json())
     .then(r => {
       if (!r.success || r.dados.length === 0) {
-        lista.innerHTML = "Nenhum registro encontrado";
+        lista.innerHTML = "<p>Nenhum registro encontrado para esta data.</p>";
         return;
       }
 
@@ -163,23 +164,40 @@ function carregarHistorico() {
 
       r.dados.forEach(i => {
         lista.innerHTML += `
-          <div class="historico-item">
-            <strong>${i.contrato}</strong><br>
-            💰 Faturamento: ${i.faturamentoMes} / ${i.faturamentoSemana}<br>
-            💸 Custos: ${i.custoMes} / ${i.custoSemana}<br>
-            👷 Produção: ${i.prodRealizada} / ${i.prodPrevista} / ${i.prodSemana}<br>
-            🌟 Destaques: ${i.destaques || "-"}<br>
-            🎯 Concentrações: ${i.concentracoes || "-"}
-            <hr>
+          <div class="historico-card">
+
+            <h4>📄 ${i.contrato}</h4>
+
+            <div class="historico-bloco">
+              <strong>💰 Faturamento</strong>
+              <p>Mês: <span>${i.faturamentoMes}</span></p>
+              <p>Semana: <span>${i.faturamentoSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>💸 Custos</strong>
+              <p>Mês: <span>${i.custoMes}</span></p>
+              <p>Semana: <span>${i.custoSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>👷 Produção</strong>
+              <p>Realizada: <span>${i.prodRealizada}</span></p>
+              <p>Prevista: <span>${i.prodPrevista}</span></p>
+              <p>Semana: <span>${i.prodSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>🧠 Análise</strong>
+              <p><strong>Destaques:</strong> ${i.destaques || "-"}</p>
+              <p><strong>Concentrações:</strong> ${i.concentracoes || "-"}</p>
+            </div>
+
           </div>
         `;
       });
     })
     .catch(() => {
-      lista.innerHTML = "Erro ao carregar histórico";
+      lista.innerHTML = "<p>Erro ao carregar histórico.</p>";
     });
 }
-
-
-
-
