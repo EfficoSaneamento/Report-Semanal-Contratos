@@ -18,7 +18,7 @@ function dataBR(dataISO) {
 }
 
 /* =========================
-   VALIDAR TOKEN E CARREGAR CONTRATOS
+   VALIDAR TOKEN + CONTRATOS
 ========================= */
 fetch(`${API_URL}?action=validar&token=${token}`)
   .then(r => r.json())
@@ -36,7 +36,7 @@ fetch(`${API_URL}?action=validar&token=${token}`)
   });
 
 /* =========================
-   RENDER CONTRATOS (FORMULÁRIO)
+   RENDER CONTRATOS
 ========================= */
 function renderContratos(contratos) {
   const container = document.getElementById("formulario");
@@ -60,16 +60,16 @@ function renderContratos(contratos) {
         <div class="bloco">
           <h4>💰 Faturamento</h4>
           <div class="grid-2">
-            <input placeholder="Previsto (Mês)" data-field="faturamentoPrevistoMes">
-            <input placeholder="Próx. Semana" data-field="faturamentoProximaSemana">
+            <input type="number" placeholder="Previsto (Mês)" data-field="faturamentoPrevistoMes">
+            <input type="number" placeholder="Próx. Semana" data-field="faturamentoProximaSemana">
           </div>
         </div>
 
         <div class="bloco">
           <h4>💸 Custos</h4>
           <div class="grid-2">
-            <input placeholder="Previsto (Mês)" data-field="custoPrevistoMes">
-            <input placeholder="Próx. Semana" data-field="custoProximaSemana">
+            <input type="number" placeholder="Previsto (Mês)" data-field="custoPrevistoMes">
+            <input type="number" placeholder="Próx. Semana" data-field="custoProximaSemana">
           </div>
         </div>
 
@@ -91,7 +91,6 @@ function renderContratos(contratos) {
       </div>
     `;
 
-    // abre / fecha
     div.querySelector(".contrato-header").onclick = () => {
       const body = div.querySelector(".contrato-body");
       body.style.display = body.style.display === "none" ? "block" : "none";
@@ -108,9 +107,7 @@ document.getElementById("btnEnviar").onclick = () => {
   const contratos = [];
 
   document.querySelectorAll(".contrato").forEach(div => {
-    const dados = {
-      nomeContrato: div.dataset.nome
-    };
+    const dados = { nomeContrato: div.dataset.nome };
 
     div.querySelectorAll("[data-field]").forEach(el => {
       dados[el.dataset.field] = el.value || "";
@@ -126,8 +123,6 @@ document.getElementById("btnEnviar").onclick = () => {
 
   fetch(API_URL, {
     method: "POST",
-    mode: "cors",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, contratos })
   })
     .then(r => r.json())
@@ -139,8 +134,9 @@ document.getElementById("btnEnviar").onclick = () => {
         alert(r.message || "Erro ao enviar");
       }
     })
-    .catch(() => {
-      alert("Erro ao conectar com a API");
+    .catch(err => {
+      console.error(err);
+      alert("Erro ao enviar dados");
     });
 };
 
@@ -183,6 +179,7 @@ function carregarHistorico() {
       lista.innerHTML = "Erro ao carregar histórico";
     });
 }
+
 
 
 
