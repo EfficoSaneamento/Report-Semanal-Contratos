@@ -7,12 +7,12 @@ const params = new URLSearchParams(window.location.search);
 const token = params.get('token');
 
 if (!token) {
-  document.getElementById('erro').innerText = 'Token não informado na URL';
+  document.getElementById('erro').innerText = 'Token não informado';
   throw new Error('Token ausente');
 }
 
 /* =========================
-   CAMPOS MONETÁRIOS
+   CAMPOS FORMATADOS
 ========================= */
 const CAMPOS_MONETARIOS = [
   'faturamentoPrevistoMes',
@@ -21,12 +21,17 @@ const CAMPOS_MONETARIOS = [
   'custoProximaSemana'
 ];
 
+const CAMPOS_NUMERICOS = [
+  'producaoRealizadaMes',
+  'producaoPrevistaMes',
+  'producaoProximaSemana'
+];
+
 /* =========================
    FORMATADORES
 ========================= */
-function formatMoneyBR(input) {
+function formatDecimalBR(input) {
   let v = input.value.replace(/\D/g, '');
-
   if (!v) {
     input.value = '';
     return;
@@ -39,7 +44,7 @@ function formatMoneyBR(input) {
   input.value = v;
 }
 
-function moneyToNumber(v) {
+function toNumberBR(v) {
   if (!v) return '';
   return Number(v.replace(/\./g, '').replace(',', '.'));
 }
@@ -50,7 +55,7 @@ function dataBR(dataISO) {
 }
 
 /* =========================
-   VALIDAR TOKEN E CARREGAR
+   VALIDAR TOKEN
 ========================= */
 fetch(`${API_URL}?action=validar&token=${token}`)
   .then(r => r.json())
@@ -153,11 +158,12 @@ function renderContratos(contratos) {
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
     };
 
-    // Aplica máscara monetária via JS
+    // Aplica formatação BR
     div.querySelectorAll('[data-field]').forEach(input => {
-      if (CAMPOS_MONETARIOS.includes(input.dataset.field)) {
+      if (CAMPOS_MONETARIOS.includes(input.dataset.field) ||
+          CAMPOS_NUMERICOS.includes(input.dataset.field)) {
         input.type = 'text';
-        input.addEventListener('input', () => formatMoneyBR(input));
+        input.addEventListener('input', () => formatDecimalBR(input));
       }
     });
 
@@ -172,16 +178,14 @@ document.getElementById('btnEnviar').onclick = () => {
   const contratos = [];
 
   document.querySelectorAll('.contrato').forEach(div => {
-    const dados = {
-      nomeContrato: div.dataset.nome
-    };
+    const dados = { nomeContrato: div.dataset.nome };
 
     div.querySelectorAll('[data-field]').forEach(el => {
       dados[el.dataset.field] = el.value || '';
     });
 
-    CAMPOS_MONETARIOS.forEach(campo => {
-      dados[campo] = moneyToNumber(dados[campo]);
+    [...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].forEach(campo => {
+      dados[campo] = toNumberBR(dados[campo]);
     });
 
     contratos.push(dados);
@@ -204,41 +208,64 @@ document.getElementById('btnEnviar').onclick = () => {
 };
 
 /* =========================
-   HISTÓRICO
+   HISTÓRICO (VISUAL PROFISSIONAL)
 ========================= */
 function carregarHistorico() {
   const dataISO = document.getElementById('dataHistorico').value;
   if (!dataISO) return;
 
   const data = dataBR(dataISO);
+  const lista = document.getElementById('listaHistorico');
+
+  lista.innerHTML = '<p>Carregando histórico...</p>';
 
   fetch(`${API_URL}?action=historico&token=${token}&data=${data}`)
     .then(r => r.json())
-    .then(d => {
-      const lista = document.getElementById('listaHistorico');
-      lista.innerHTML = '';
-
-      if (!d.success || d.dados.length === 0) {
-        lista.innerHTML = '<p>Nenhum registro encontrado.</p>';
+    .then(r => {
+      if (!r.success || r.dados.length === 0) {
+        lista.innerHTML = '<p>Nenhum registro encontrado para esta data.</p>';
         return;
       }
 
-      d.dados.forEach(i => {
+      lista.innerHTML = '';
+
+      r.dados.forEach(i => {
         lista.innerHTML += `
-          <div class="card">
-            <strong>${i.contrato}</strong>
-            <p>💰 Faturamento (Mês): ${i.faturamentoMes}</p>
-            <p>📅 Faturamento Semana: ${i.faturamentoSemana}</p>
-            <p>💸 Custo (Mês): ${i.custoMes}</p>
-            <p>📆 Custo Semana: ${i.custoSemana}</p>
-            <p>👷 Produção Realizada: ${i.prodRealizada}</p>
-            <p>👷 Produção Prevista: ${i.prodPrevista}</p>
-            <p>📆 Produção Semana: ${i.prodSemana}</p>
-            <p>🌟 Destaques: ${i.destaques}</p>
-            <p>🎯 Concentrações: ${i.concentracoes}</p>
+          <div class="historico-card">
+
+            <h4>📄 ${i.contrato}</h4>
+
+            <div class="historico-bloco">
+              <strong>💰 Faturamento</strong>
+              <p>Mês: <span>${i.faturamentoMes}</span></p>
+              <p>Semana: <span>${i.faturamentoSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>💸 Custos</strong>
+              <p>Mês: <span>${i.custoMes}</span></p>
+              <p>Semana: <span>${i.custoSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>👷 Produção</strong>
+              <p>Realizada: <span>${i.prodRealizada}</span></p>
+              <p>Prevista: <span>${i.prodPrevista}</span></p>
+              <p>Semana: <span>${i.prodSemana}</span></p>
+            </div>
+
+            <div class="historico-bloco">
+              <strong>🧠 Análise</strong>
+              <p><strong>Destaques:</strong> ${i.destaques || '-'}</p>
+              <p><strong>Concentrações:</strong> ${i.concentracoes || '-'}</p>
+            </div>
+
           </div>
         `;
       });
+    })
+    .catch(() => {
+      lista.innerHTML = '<p>Erro ao carregar histórico.</p>';
     });
 }
 
