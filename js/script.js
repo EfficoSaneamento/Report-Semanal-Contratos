@@ -76,8 +76,8 @@ function renderContratos(contratos) {
         <div class="bloco">
           <h4>👷 Produção</h4>
           <div class="grid-3">
-            <input placeholder="Realizada (Mês)" data-field="producaoRealizadaMes">
             <input placeholder="Prevista (Mês)" data-field="producaoPrevistaMes">
+            <input placeholder="Realizada (Mês)" data-field="producaoRealizadaMes">
             <input placeholder="Próx. Semana" data-field="producaoProximaSemana">
           </div>
         </div>
