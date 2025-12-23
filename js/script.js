@@ -22,8 +22,8 @@ const CAMPOS_MONETARIOS = [
 ];
 
 const CAMPOS_NUMERICOS = [
-  'producaoRealizadaMes',
   'producaoPrevistaMes',
+  'producaoRealizadaMes',
   'producaoProximaSemana'
 ];
 
@@ -249,8 +249,8 @@ function carregarHistorico() {
 
             <div class="historico-bloco">
               <strong>👷 Produção</strong>
-              <p>Realizada: <span>${i.prodRealizada}</span></p>
               <p>Prevista: <span>${i.prodPrevista}</span></p>
+              <p>Realizada: <span>${i.prodRealizada}</span></p>
               <p>Semana: <span>${i.prodSemana}</span></p>
             </div>
 
