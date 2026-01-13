@@ -23,8 +23,8 @@ const CAMPOS_MONETARIOS = [
 
 const CAMPOS_NUMERICOS = [
   'producaoPrevistaMes',
-  'producaoRealizadaMes',
-  'producaoProximaSemana'
+  'producaoProximaSemana',
+  'producaoRealizadaMes'
 ];
 
 /* =========================
@@ -118,12 +118,12 @@ function renderContratos(contratos) {
               <input data-field="producaoPrevistaMes">
             </div>
             <div class="campo">
-              <label>Produção Realizada (Mês)</label>
-              <input data-field="producaoRealizadaMes">
-            </div>
-            <div class="campo">
               <label>Próx. Semana</label>
               <input data-field="producaoProximaSemana">
+            </div>
+            <div class="campo">
+              <label>Produção Realizada (Mês)</label>
+              <input data-field="producaoRealizadaMes">
             </div>
           </div>
         </div>
@@ -211,14 +211,15 @@ function carregarHistorico() {
             <h4>📄 ${i.contrato}</h4>
             <div class="historico-bloco">
               <strong>👷 Produção</strong>
-              <p>Prevista: ${i.prodPrevista}</p>
-              <p>Realizada: ${i.prodRealizada}</p>
-              <p>Semana: ${i.prodSemana}</p>
+              <p>Prevista (Mês): ${i.prodPrevista}</p>
+              <p>Próx. Semana: ${i.prodSemana}</p>
+              <p>Realizada (Mês): ${i.prodRealizada}</p>
             </div>
           </div>
         `;
       });
     });
 }
+
 
 
