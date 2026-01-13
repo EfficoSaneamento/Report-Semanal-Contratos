@@ -126,16 +126,16 @@ function renderContratos(contratos) {
           <h4 class="bloco-titulo">👷 Produção</h4>
           <div class="grid-3">
             <div class="campo">
-              <label>Realizada (Mês)</label>
-              <input data-field="producaoRealizadaMes">
-            </div>
-            <div class="campo">
               <label>Prevista (Mês)</label>
-              <input data-field="producaoPrevistaMes">
+              <input data-field="produçãoPrevistaMes">
             </div>
             <div class="campo">
               <label>Próx. Semana</label>
               <input data-field="producaoProximaSemana">
+            </div>
+            <div class="campo">
+              <label>Produção Realizada (Mês)</label>
+              <input data-field="producaoRealizadaMes">
             </div>
           </div>
         </div>
