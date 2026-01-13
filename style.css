@@ -1,7 +1,4 @@
-/* =======================
-   RESET / BASE
-======================= */
-
+/* ======================= RESET / BASE ======================= */
 * {
   box-sizing: border-box;
 }
@@ -13,10 +10,7 @@ body {
   color: #0f172a;
 }
 
-/* =======================
-   TOPO
-======================= */
-
+/* ======================= TOPO ======================= */
 .topo {
   display: flex;
   align-items: center;
@@ -35,32 +29,19 @@ body {
   font-size: 22px;
 }
 
-/* =======================
-   CONTAINER
-======================= */
-
+/* ======================= CONTAINER ======================= */
 .container {
   display: flex;
   gap: 20px;
   padding: 20px;
 }
 
-/* =======================
-   CONTEÚDO
-======================= */
-
+/* ======================= CONTEÚDO ======================= */
 .conteudo {
   flex: 3;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.06);
 }
 
-/* =======================
-   CONTRATO
-======================= */
-
+/* ======================= CONTRATO ======================= */
 .contrato {
   background: white;
   border-radius: 8px;
@@ -77,26 +58,23 @@ body {
   cursor: pointer;
 }
 
-/* =======================
-   CORPO DO CONTRATO
-======================= */
-
+/* ======================= CORPO DO CONTRATO ======================= */
 .contrato-body {
-  display: none;
+  display: none;               /* controlado pelo JS */
   padding: 20px;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
 }
 
-/* =======================
-   BLOCOS
-======================= */
+.contrato-body.aberto {
+  display: grid;               /* classe aplicada pelo JS */
+}
 
+/* ======================= BLOCOS ======================= */
 .bloco {
   background: #f8fafc;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
 }
 
 .bloco-titulo {
@@ -109,10 +87,7 @@ body {
   gap: 8px;
 }
 
-/* =======================
-   GRIDS INTERNOS
-======================= */
-
+/* ======================= GRIDS INTERNOS ======================= */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -125,10 +100,7 @@ body {
   gap: 16px;
 }
 
-/* =======================
-   CAMPOS
-======================= */
-
+/* ======================= CAMPOS ======================= */
 .campo {
   display: flex;
   flex-direction: column;
@@ -161,42 +133,12 @@ textarea {
   min-height: 80px;
 }
 
-/* =======================
-   BLOCO ANÁLISE
-======================= */
-
+/* ======================= BLOCO ANÁLISE ======================= */
 .bloco textarea {
   margin-bottom: 12px;
 }
 
-/* =======================
-   HISTÓRICO (ASIDE)
-======================= */
-
-.historico {
-  flex: 1;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.06);
-}
-
-.historico h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #4C4C4C;
-}
-
-.historico input,
-.historico button {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-/* =======================
-   CARDS HISTÓRICO
-======================= */
-
+/* ======================= HISTÓRICO ======================= */
 .historico-card {
   background: #ffffff;
   border-radius: 8px;
@@ -226,10 +168,7 @@ textarea {
   font-weight: 600;
 }
 
-/* =======================
-   BOTÃO
-======================= */
-
+/* ======================= BOTÃO ======================= */
 .btn-enviar {
   background: #4C4C4C;
   color: white;
@@ -242,22 +181,16 @@ textarea {
 }
 
 .btn-enviar:hover {
-  background: #3f3f3f;
+  filter: brightness(0.9);
 }
 
-/* =======================
-   ERRO
-======================= */
-
+/* ======================= ERRO ======================= */
 .erro {
   color: #dc2626;
   margin-top: 10px;
 }
 
-/* =======================
-   RODAPÉ
-======================= */
-
+/* ======================= RODAPÉ ======================= */
 .rodape {
   background: #4C4C4C;
   color: white;
@@ -267,10 +200,7 @@ textarea {
   font-size: 13px;
 }
 
-/* =======================
-   RESPONSIVO
-======================= */
-
+/* ======================= RESPONSIVO ======================= */
 @media (max-width: 900px) {
   .container {
     flex-direction: column;
