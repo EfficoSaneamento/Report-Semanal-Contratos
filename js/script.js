@@ -41,8 +41,12 @@ function formatDecimalBR(input) {
   input.value = v;
 }
 
+function formatNumeroInteiro(input) {
+  input.value = input.value.replace(/\D/g, '');
+}
+
 function toNumberBR(v) {
-  if (!v) return '';
+  if (!v) return 0;
   return Number(v.replace(/\./g, '').replace(',', '.'));
 }
 
@@ -146,15 +150,18 @@ function renderContratos(contratos) {
     `;
 
     const body = div.querySelector('.contrato-body');
-    body.style.display = 'none';
 
     div.querySelector('.contrato-header').onclick = () => {
       body.classList.toggle('aberto');
     };
 
     div.querySelectorAll('[data-field]').forEach(input => {
-      if ([...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].includes(input.dataset.field)) {
+      if (CAMPOS_MONETARIOS.includes(input.dataset.field)) {
         input.addEventListener('input', () => formatDecimalBR(input));
+      }
+
+      if (CAMPOS_NUMERICOS.includes(input.dataset.field)) {
+        input.addEventListener('input', () => formatNumeroInteiro(input));
       }
     });
 
@@ -175,9 +182,8 @@ document.getElementById('btnEnviar').onclick = () => {
       dados[el.dataset.field] = el.value || '';
     });
 
-    [...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].forEach(c => {
-      dados[c] = toNumberBR(dados[c]);
-    });
+    CAMPOS_MONETARIOS.forEach(c => dados[c] = toNumberBR(dados[c]));
+    CAMPOS_NUMERICOS.forEach(c => dados[c] = Number(dados[c] || 0));
 
     contratos.push(dados);
   });
@@ -236,7 +242,6 @@ function carregarHistorico() {
         '<p>Erro ao carregar histórico.</p>';
     });
 }
-
 
 
 
