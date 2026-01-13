@@ -63,6 +63,9 @@ fetch(`${API_URL}?action=validar&token=${token}`)
     }
     document.getElementById('gerenteNome').innerText = d.gerente;
     renderContratos(d.contratos);
+  })
+  .catch(() => {
+    document.getElementById('erro').innerText = 'Erro ao conectar com a API';
   });
 
 /* =========================
@@ -117,12 +120,14 @@ function renderContratos(contratos) {
               <label>Prevista (Mês)</label>
               <input data-field="producaoPrevistaMes">
             </div>
+
             <div class="campo">
               <label>Próx. Semana</label>
               <input data-field="producaoProximaSemana">
             </div>
+
             <div class="campo">
-              <label>Produção Realizada (Mês)</label>
+              <label>Produção Realizada (Acumulada Mês)</label>
               <input data-field="producaoRealizadaMes">
             </div>
           </div>
@@ -181,15 +186,16 @@ document.getElementById('btnEnviar').onclick = () => {
     method: 'POST',
     body: JSON.stringify({ token, contratos })
   })
-  .then(r => r.json())
-  .then(r => {
-    if (r.success) {
-      alert('Relatório enviado com sucesso!');
-      location.reload();
-    } else {
-      alert(r.message || 'Erro ao enviar');
-    }
-  });
+    .then(r => r.json())
+    .then(r => {
+      if (r.success) {
+        alert('Relatório enviado com sucesso!');
+        location.reload();
+      } else {
+        alert(r.message || 'Erro ao enviar');
+      }
+    })
+    .catch(() => alert('Erro ao enviar dados'));
 };
 
 /* =========================
@@ -205,21 +211,32 @@ function carregarHistorico() {
       const lista = document.getElementById('listaHistorico');
       lista.innerHTML = '';
 
+      if (!r.success || !r.dados.length) {
+        lista.innerHTML = '<p>Nenhum registro encontrado.</p>';
+        return;
+      }
+
       r.dados.forEach(i => {
         lista.innerHTML += `
           <div class="historico-card">
             <h4>📄 ${i.contrato}</h4>
+
             <div class="historico-bloco">
               <strong>👷 Produção</strong>
-              <p>Prevista (Mês): ${i.prodPrevista}</p>
-              <p>Próx. Semana: ${i.prodSemana}</p>
-              <p>Realizada (Mês): ${i.prodRealizada}</p>
+              <p>Prevista (Mês): <span>${i.prodPrevista}</span></p>
+              <p>Próx. Semana: <span>${i.prodSemana}</span></p>
+              <p>Realizada (Acumulada): <span>${i.prodRealizada}</span></p>
             </div>
           </div>
         `;
       });
+    })
+    .catch(() => {
+      document.getElementById('listaHistorico').innerHTML =
+        '<p>Erro ao carregar histórico.</p>';
     });
 }
+
 
 
 
