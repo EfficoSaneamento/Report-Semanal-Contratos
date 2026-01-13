@@ -149,7 +149,7 @@ function renderContratos(contratos) {
     body.style.display = 'none';
 
     div.querySelector('.contrato-header').onclick = () => {
-      body.style.display = body.style.display === 'none' ? 'grid' : 'none';
+      body.classList.toggle('aberto');
     };
 
     div.querySelectorAll('[data-field]').forEach(input => {
