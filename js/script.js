@@ -127,7 +127,7 @@ function renderContratos(contratos) {
           <div class="grid-3">
             <div class="campo">
               <label>Prevista (Mês)</label>
-              <input data-field="produçãoPrevistaMes">
+              <input data-field="producaoPrevistaMes">
             </div>
             <div class="campo">
               <label>Próx. Semana</label>
@@ -152,7 +152,7 @@ function renderContratos(contratos) {
       </div>
     `;
 
-    // Toggle
+    // Toggle abrir/fechar
     div.querySelector('.contrato-header').onclick = () => {
       const body = div.querySelector('.contrato-body');
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
@@ -160,8 +160,10 @@ function renderContratos(contratos) {
 
     // Aplica formatação BR
     div.querySelectorAll('[data-field]').forEach(input => {
-      if (CAMPOS_MONETARIOS.includes(input.dataset.field) ||
-          CAMPOS_NUMERICOS.includes(input.dataset.field)) {
+      if (
+        CAMPOS_MONETARIOS.includes(input.dataset.field) ||
+        CAMPOS_NUMERICOS.includes(input.dataset.field)
+      ) {
         input.type = 'text';
         input.addEventListener('input', () => formatDecimalBR(input));
       }
@@ -191,6 +193,8 @@ document.getElementById('btnEnviar').onclick = () => {
     contratos.push(dados);
   });
 
+  console.log('Payload enviado:', contratos);
+
   fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({ token, contratos })
@@ -208,7 +212,7 @@ document.getElementById('btnEnviar').onclick = () => {
 };
 
 /* =========================
-   HISTÓRICO (VISUAL PROFISSIONAL)
+   HISTÓRICO
 ========================= */
 function carregarHistorico() {
   const dataISO = document.getElementById('dataHistorico').value;
@@ -232,26 +236,25 @@ function carregarHistorico() {
       r.dados.forEach(i => {
         lista.innerHTML += `
           <div class="historico-card">
-
             <h4>📄 ${i.contrato}</h4>
 
             <div class="historico-bloco">
               <strong>💰 Faturamento</strong>
-              <p>Mês: <span>${i.faturamentoMes}</span></p>
-              <p>Semana: <span>${i.faturamentoSemana}</span></p>
+              <p>${i.faturamentoMes}</p>
+              <p>${i.faturamentoSemana}</p>
             </div>
 
             <div class="historico-bloco">
               <strong>💸 Custos</strong>
-              <p>Mês: <span>${i.custoMes}</span></p>
-              <p>Semana: <span>${i.custoSemana}</span></p>
+              <p>${i.custoMes}</p>
+              <p>${i.custoSemana}</p>
             </div>
 
             <div class="historico-bloco">
               <strong>👷 Produção</strong>
-              <p>Prevista: <span>${i.prodPrevista}</span></p>
-              <p>Realizada: <span>${i.prodRealizada}</span></p>
-              <p>Semana: <span>${i.prodSemana}</span></p>
+              <p>${i.prodPrevista}</p>
+              <p>${i.prodRealizada}</p>
+              <p>${i.prodSemana}</p>
             </div>
 
             <div class="historico-bloco">
@@ -259,7 +262,6 @@ function carregarHistorico() {
               <p><strong>Destaques:</strong> ${i.destaques || '-'}</p>
               <p><strong>Concentrações:</strong> ${i.concentracoes || '-'}</p>
             </div>
-
           </div>
         `;
       });
