@@ -51,6 +51,10 @@ body {
 
 .conteudo {
   flex: 3;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
 }
 
 /* =======================
@@ -80,7 +84,6 @@ body {
 .contrato-body {
   display: none;
   padding: 20px;
-  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
 }
@@ -93,6 +96,7 @@ body {
   background: #f8fafc;
   padding: 16px;
   border-radius: 10px;
+  border: 1px solid #e5e7eb;
 }
 
 .bloco-titulo {
@@ -166,12 +170,32 @@ textarea {
 }
 
 /* =======================
-   HISTÓRICO
+   HISTÓRICO (ASIDE)
 ======================= */
 
-/* =========================
-   HISTÓRICO
-========================= */
+.historico {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
+}
+
+.historico h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #4C4C4C;
+}
+
+.historico input,
+.historico button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* =======================
+   CARDS HISTÓRICO
+======================= */
 
 .historico-card {
   background: #ffffff;
@@ -218,7 +242,7 @@ textarea {
 }
 
 .btn-enviar:hover {
-  background: #4C4C4C;
+  background: #3f3f3f;
 }
 
 /* =======================
