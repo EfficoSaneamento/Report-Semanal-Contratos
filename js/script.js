@@ -36,10 +36,8 @@ function formatDecimalBR(input) {
     input.value = '';
     return;
   }
-
   v = (Number(v) / 100).toFixed(2);
-  v = v.replace('.', ',');
-  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  v = v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   input.value = v;
 }
 
@@ -63,25 +61,16 @@ fetch(`${API_URL}?action=validar&token=${token}`)
       document.getElementById('erro').innerText = d.message;
       return;
     }
-
     document.getElementById('gerenteNome').innerText = d.gerente;
     renderContratos(d.contratos);
-  })
-  .catch(() => {
-    document.getElementById('erro').innerText = 'Erro ao conectar com a API';
   });
 
 /* =========================
-   RENDER CONTRATOS (LAYOUT ORIGINAL)
+   RENDER CONTRATOS
 ========================= */
 function renderContratos(contratos) {
   const container = document.getElementById('formulario');
   container.innerHTML = '';
-
-  if (!contratos || contratos.length === 0) {
-    container.innerHTML = '<p>Nenhum contrato encontrado.</p>';
-    return;
-  }
 
   contratos.forEach(c => {
     const div = document.createElement('div');
@@ -91,7 +80,7 @@ function renderContratos(contratos) {
     div.innerHTML = `
       <div class="contrato-header">${c.nome}</div>
 
-      <div class="contrato-body" style="display:none">
+      <div class="contrato-body">
 
         <div class="bloco">
           <h4 class="bloco-titulo">💰 Faturamento</h4>
@@ -151,19 +140,15 @@ function renderContratos(contratos) {
       </div>
     `;
 
-    /* Toggle abrir/fechar */
+    const body = div.querySelector('.contrato-body');
+    body.style.display = 'none';
+
     div.querySelector('.contrato-header').onclick = () => {
-      const body = div.querySelector('.contrato-body');
-      body.style.display = body.style.display === 'none' ? 'block' : 'none';
+      body.style.display = body.style.display === 'none' ? 'grid' : 'none';
     };
 
-    /* Aplicar formatação */
     div.querySelectorAll('[data-field]').forEach(input => {
-      if (
-        CAMPOS_MONETARIOS.includes(input.dataset.field) ||
-        CAMPOS_NUMERICOS.includes(input.dataset.field)
-      ) {
-        input.type = 'text';
+      if ([...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].includes(input.dataset.field)) {
         input.addEventListener('input', () => formatDecimalBR(input));
       }
     });
@@ -185,8 +170,8 @@ document.getElementById('btnEnviar').onclick = () => {
       dados[el.dataset.field] = el.value || '';
     });
 
-    [...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].forEach(campo => {
-      dados[campo] = toNumberBR(dados[campo]);
+    [...CAMPOS_MONETARIOS, ...CAMPOS_NUMERICOS].forEach(c => {
+      dados[c] = toNumberBR(dados[c]);
     });
 
     contratos.push(dados);
@@ -196,16 +181,15 @@ document.getElementById('btnEnviar').onclick = () => {
     method: 'POST',
     body: JSON.stringify({ token, contratos })
   })
-    .then(r => r.json())
-    .then(r => {
-      if (r.success) {
-        alert('Relatório enviado com sucesso!');
-        location.reload();
-      } else {
-        alert(r.message || 'Erro ao enviar');
-      }
-    })
-    .catch(() => alert('Erro ao enviar dados'));
+  .then(r => r.json())
+  .then(r => {
+    if (r.success) {
+      alert('Relatório enviado com sucesso!');
+      location.reload();
+    } else {
+      alert(r.message || 'Erro ao enviar');
+    }
+  });
 };
 
 /* =========================
@@ -215,56 +199,26 @@ function carregarHistorico() {
   const dataISO = document.getElementById('dataHistorico').value;
   if (!dataISO) return;
 
-  const data = dataBR(dataISO);
-  const lista = document.getElementById('listaHistorico');
-
-  lista.innerHTML = '<p>Carregando histórico...</p>';
-
-  fetch(`${API_URL}?action=historico&token=${token}&data=${data}`)
+  fetch(`${API_URL}?action=historico&token=${token}&data=${dataBR(dataISO)}`)
     .then(r => r.json())
     .then(r => {
-      if (!r.success || r.dados.length === 0) {
-        lista.innerHTML = '<p>Nenhum registro encontrado para esta data.</p>';
-        return;
-      }
-
+      const lista = document.getElementById('listaHistorico');
       lista.innerHTML = '';
 
       r.dados.forEach(i => {
         lista.innerHTML += `
           <div class="historico-card">
             <h4>📄 ${i.contrato}</h4>
-
-            <div class="historico-bloco">
-              <strong>💰 Faturamento</strong>
-              <p>Previsto: ${i.faturamentoMes}</p>
-              <p>Semana: ${i.faturamentoSemana}</p>
-            </div>
-
-            <div class="historico-bloco">
-              <strong>💸 Custos</strong>
-              <p>Previsto: ${i.custoMes}</p>
-              <p>Semana: ${i.custoSemana}</p>
-            </div>
-
             <div class="historico-bloco">
               <strong>👷 Produção</strong>
               <p>Prevista: ${i.prodPrevista}</p>
               <p>Realizada: ${i.prodRealizada}</p>
-              <p>Próx. Semana: ${i.prodSemana}</p>
-            </div>
-
-            <div class="historico-bloco">
-              <strong>🧠 Análise</strong>
-              <p><strong>Destaques:</strong> ${i.destaques || '-'}</p>
-              <p><strong>Concentrações:</strong> ${i.concentracoes || '-'}</p>
+              <p>Semana: ${i.prodSemana}</p>
             </div>
           </div>
         `;
       });
-    })
-    .catch(() => {
-      lista.innerHTML = '<p>Erro ao carregar histórico.</p>';
     });
 }
+
 
