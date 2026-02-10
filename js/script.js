@@ -228,10 +228,19 @@ function carregarHistorico() {
             <h4>📄 ${i.contrato}</h4>
 
             <div class="historico-bloco">
+              <strong>💰 Faturamento</strong>
+              <p> Previsto (Mês): <span> ${i.fatPrevisto }</span></p>
+              <p>Próx. Semana: <span>${i.fatSemana}</span></p>
+              <strong>💸 Custos</strong>
+              <p> Previsto (Mês): <span> ${i.CustPrevisto }</span></p>
+              <p>Próx. Semana: <span>${i.CustSemana}</span></p>
               <strong>👷 Produção</strong>
               <p>Prevista (Mês): <span>${i.prodPrevista}</span></p>
               <p>Próx. Semana: <span>${i.prodSemana}</span></p>
               <p>Realizada (Acumulada): <span>${i.prodRealizada}</span></p>
+               <strong>🧠 Análise</strong>
+              <p> Destaques da Semana: <span> ${i.destSemana }</span></p>
+              <p>Concentrações da Semana <span>${i.consSenaba}</span></p>
             </div>
           </div>
         `;
