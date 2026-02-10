@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzORj6hkBR-k0Umix4JWslGWBnEICuM3ouj7qrEk4zee-mJr2gGXLRpSVF-uXJiaTWFSQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzHzTpOKorTYkrD5L9TUr7d1enbzXdj_Wr62ldRoe3VGSrTyLHam2RPNws__zit0zRpQg/exec';
 
 /* =========================
    TOKEN
@@ -229,18 +229,18 @@ function carregarHistorico() {
 
             <div class="historico-bloco">
               <strong>💰 Faturamento</strong>
-              <p> Previsto (Mês): <span> ${i.fatPrevisto }</span></p>
-              <p>Próx. Semana: <span>${i.fatSemana}</span></p>
+              <p> Previsto (Mês): <span> ${i.faturamentoMes }</span></p>
+              <p>Próx. Semana: <span>${i.faturamentoSemana}</span></p>
               <strong>💸 Custos</strong>
-              <p> Previsto (Mês): <span> ${i.CustPrevisto }</span></p>
-              <p>Próx. Semana: <span>${i.CustSemana}</span></p>
+              <p> Previsto (Mês): <span> ${i.custoMes }</span></p>
+              <p>Próx. Semana: <span>${i.custoSemana}</span></p>
               <strong>👷 Produção</strong>
               <p>Prevista (Mês): <span>${i.prodPrevista}</span></p>
               <p>Próx. Semana: <span>${i.prodSemana}</span></p>
               <p>Realizada (Acumulada): <span>${i.prodRealizada}</span></p>
                <strong>🧠 Análise</strong>
-              <p> Destaques da Semana: <span> ${i.destSemana }</span></p>
-              <p>Concentrações da Semana <span>${i.consSenaba}</span></p>
+              <p> Destaques da Semana: <span> ${i.destaques }</span></p>
+              <p>Concentrações da Semana <span>${i.concentracoes}</span></p>
             </div>
           </div>
         `;
